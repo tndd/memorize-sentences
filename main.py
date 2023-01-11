@@ -48,19 +48,19 @@ def test_sentences(keys, dict_genre):
     return exam_paper
 
 
-def get_sentence():
-    with open('data/sentence.json', 'r') as f:
+def get_sentence(genre):
+    with open(f'data/{genre}.json', 'r') as f:
         d = json.load(f)
     return d
 
 
-def get_genre_keys_and_dict(genre, n=None):
-    d = get_sentence()
-    keys = list(d[genre].keys())
+def get_shuffled_keys_and_dict(genre, n=None):
+    d = get_sentence(genre)
+    keys = list(d.keys())
     shuffle(keys)
     if n is not None:
         keys = keys[:n]
-    return keys, d[genre]
+    return keys, d
 
 
 def store_exam_paper(genre, exam_paper):
@@ -69,9 +69,9 @@ def store_exam_paper(genre, exam_paper):
 
 
 def main() -> None:
-    genre = 'Winston Churchill'
-    keys, d_genre = get_genre_keys_and_dict(genre)
-    exam_paper = test_sentences(keys, d_genre)
+    genre = 'winston_churchill'
+    keys, d = get_shuffled_keys_and_dict(genre)
+    exam_paper = test_sentences(keys, d)
     store_exam_paper(genre, exam_paper)
 
 
