@@ -11,15 +11,16 @@ def test_sentences(keys, dict_genre):
         en = dict_genre[key]['en']
         while True:
             print(jp)
-            hint_num = 1
+            hint_num = 0
             ans = input()
             if ans == '-h' or ans == '--hint':
                 while True:
+                    hint_num = min(hint_num + 1, len(en.split()))
                     en_head = ' '.join(en.split()[:hint_num])
                     print(en_head)
                     command = input()
                     if command == '-h' or ans == '--hint':
-                        hint_num = min(hint_num + 1, len(en.split()))
+                        continue
                     else:
                         ans = command
                         break
@@ -69,7 +70,7 @@ def store_exam_paper(genre, exam_paper):
 
 def main() -> None:
     genre = 'Winston Churchill'
-    keys, d_genre = get_genre_keys_and_dict(genre, 6)
+    keys, d_genre = get_genre_keys_and_dict(genre)
     exam_paper = test_sentences(keys, d_genre)
     store_exam_paper(genre, exam_paper)
 
