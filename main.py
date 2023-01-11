@@ -1,22 +1,43 @@
-import json
 import difflib
-from random import shuffle
+import json
+import re
 from datetime import datetime
+from glob import glob
+
+import pandas as pd
 
 
-def test_sentences(keys, dict_genre):
-    exam_paper = {}
-    for key in keys:
-        jp = dict_genre[key]['jp']
-        en = dict_genre[key]['en']
+def build_df(file_path):
+    with open(file_path, 'r') as f:
+        d = json.load(f)
+
+    df = pd.DataFrame.from_dict(d, orient='index')
+    df.index.name = 'id'
+    df.insert(0, 'group', re.search(r"\/([a-z_]+)\.json", file_path).group(1))
+    return df
+
+
+def get_df_sentences(shuffle=True):
+    sentences_file_paths = glob('data/*.json')
+    dfs = [build_df(fp) for fp in sentences_file_paths]
+    if shuffle:
+        return pd.concat(dfs).sample(frac=1)
+    else:
+        return pd.concat(dfs)
+
+
+def test_sentences(sentences, n=None):
+    paper = {}
+    n = len(sentences) if n is None else n
+    for index, row in sentences[:n].iterrows():
         while True:
-            print(jp)
+            print(row['jp'])
             hint_num = 0
             ans = input()
             if ans == '-h' or ans == '--hint':
                 while True:
-                    hint_num = min(hint_num + 1, len(en.split()))
-                    en_head = ' '.join(en.split()[:hint_num])
+                    hint_num = min(hint_num + 1, len(row['en'].split()))
+                    en_head = ' '.join(row['en'].split()[:hint_num])
                     print(en_head)
                     command = input()
                     if command == '-h' or ans == '--hint':
@@ -24,9 +45,9 @@ def test_sentences(keys, dict_genre):
                     else:
                         ans = command
                         break
-            if ans == en:
+            if ans == row['en']:
                 print('### OK ###')
-                exam_paper[key] = {
+                paper[index] = {
                     'input': ans,
                     'status': True,
                     'hint_num': hint_num,
@@ -35,44 +56,23 @@ def test_sentences(keys, dict_genre):
                 break
             else:
                 print('### MISS ###')
-                print(f'Correct: {en}')
-                diff = ''.join(difflib.unified_diff(ans.split(), en.split()))
+                print(f"Correct: {row['en']}")
+                diff = ''.join(difflib.unified_diff(ans.split(), row['en'].split()))
                 print(diff)
-                exam_paper[key] = {
+                paper[index] = {
                     'input': ans,
                     'status': False,
                     'hint_num': hint_num,
                     'diff': diff
                 }
                 break
-    return exam_paper
-
-
-def get_sentence(genre):
-    with open(f'data/{genre}.json', 'r') as f:
-        d = json.load(f)
-    return d
-
-
-def get_shuffled_keys_and_dict(genre, n=None):
-    d = get_sentence(genre)
-    keys = list(d.keys())
-    shuffle(keys)
-    if n is not None:
-        keys = keys[:n]
-    return keys, d
-
-
-def store_exam_paper(exam_paper):
     with open(f'exam_paper/{datetime.now().isoformat()}.json', 'w') as f:
-        json.dump(exam_paper, f, indent=4)
+        json.dump(paper, f, indent=4)
 
 
 def main() -> None:
-    genre = 'winston_churchill'
-    keys, d = get_shuffled_keys_and_dict(genre)
-    exam_paper = test_sentences(keys, d)
-    store_exam_paper(exam_paper)
+    df = get_df_sentences()
+    test_sentences(df, n=1)
 
 
 if __name__ == '__main__':
