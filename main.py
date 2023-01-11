@@ -63,8 +63,8 @@ def get_shuffled_keys_and_dict(genre, n=None):
     return keys, d
 
 
-def store_exam_paper(genre, exam_paper):
-    with open(f'exam_paper/{genre}/{datetime.now().isoformat()}.json', 'w') as f:
+def store_exam_paper(exam_paper):
+    with open(f'exam_paper/{datetime.now().isoformat()}.json', 'w') as f:
         json.dump(exam_paper, f, indent=4)
 
 
@@ -72,7 +72,7 @@ def main() -> None:
     genre = 'winston_churchill'
     keys, d = get_shuffled_keys_and_dict(genre)
     exam_paper = test_sentences(keys, d)
-    store_exam_paper(genre, exam_paper)
+    store_exam_paper(exam_paper)
 
 
 if __name__ == '__main__':
