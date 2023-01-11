@@ -71,7 +71,7 @@ def test_sentences(sentences, n=None):
 
 def main() -> None:
     df = get_df_sentences()
-    test_sentences(df, n=1)
+    test_sentences(df)
 
 
 if __name__ == '__main__':
