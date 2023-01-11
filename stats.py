@@ -9,12 +9,13 @@ def build_df(file_path):
     with open(file_path, 'r') as f:
         d = json.load(f)
     df = pd.DataFrame.from_dict(d, orient='index')
-    df.insert(0, 'group', re.search(r"record/(.*).json", file_path).group(1))
+    group_name = re.search(r"record/.*\/(.*)\.json", file_path).group(1)
+    df.insert(0, 'group', group_name)
     return df
 
 
 def get_df_record(since='latest'):
-    record_file_paths = glob('record/*.json')
+    record_file_paths = glob('record/*/*.json')
     df = pd.concat([build_df(fp) for fp in record_file_paths])
     df.index.name = 'sentence_id'
     df = df.reset_index()
@@ -29,9 +30,8 @@ def get_df_record(since='latest'):
 
 def main() -> None:
     df = get_df_record()
-    print(df)
-    # df_by_sentences = df.groupby('sentence_id').mean().sort_values('status')
-    # print(df_by_sentences)
+    df_by_sentences = df.groupby('sentence_id').mean().sort_values('status')
+    print(df_by_sentences)
 
 
 if __name__ == '__main__':

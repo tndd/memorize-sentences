@@ -1,5 +1,6 @@
 import difflib
 import json
+import os
 import re
 from datetime import datetime
 from glob import glob
@@ -65,7 +66,10 @@ def test_sentences(sentences, n=None):
                     'diff': diff
                 }
                 break
-    with open(f"record/{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}.json", 'w') as f:
+    file_name = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    dir_name = f"record/{file_name.split('T')[0]}"
+    os.makedirs(dir_name, exist_ok=True)
+    with open(f"{dir_name}/{file_name}.json", 'w') as f:
         json.dump(paper, f, indent=4)
 
 
