@@ -10,7 +10,6 @@ import pandas as pd
 def build_df(file_path):
     with open(file_path, 'r') as f:
         d = json.load(f)
-
     df = pd.DataFrame.from_dict(d, orient='index')
     df.index.name = 'id'
     df.insert(0, 'group', re.search(r"\/([a-z_]+)\.json", file_path).group(1))
