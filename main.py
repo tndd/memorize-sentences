@@ -66,7 +66,7 @@ def test_sentences(sentences, n=None):
                     'diff': diff
                 }
                 break
-    with open(f'exam_paper/{datetime.now().isoformat()}.json', 'w') as f:
+    with open(f'record/{datetime.now().isoformat()}.json', 'w') as f:
         json.dump(paper, f, indent=4)
 
 
