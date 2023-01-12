@@ -28,10 +28,16 @@ def get_df_record(since='latest'):
         return df[df['group'] >= since]
 
 
+def get_sr_mean_of_selected_by_sentence(df):
+    sr_mean = df.groupby('sentence_id').mean(numeric_only=True)['status'].sort_values()
+    sr_mean_selected = sr_mean.apply(lambda x: max(1 - x, 0.01))
+    return sr_mean_selected
+
+
 def main() -> None:
-    df = get_df_record()
-    df_by_sentences = df.groupby('sentence_id').mean().sort_values('status')
-    print(df_by_sentences)
+    df = get_df_record('all')
+    sr = get_sr_mean_of_selected_by_sentence(df)
+    
 
 
 if __name__ == '__main__':
