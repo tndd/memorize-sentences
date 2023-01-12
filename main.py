@@ -1,7 +1,6 @@
 import difflib
 import json
 import os
-import random
 from datetime import datetime
 from enum import Enum, auto
 
