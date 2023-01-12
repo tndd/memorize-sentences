@@ -1,12 +1,21 @@
 import json
 import os
 import re
+from datetime import datetime
+from enum import Enum, auto
 from glob import glob
 
 import pandas as pd
 
 BASE_DIR_NAME_TEST_PAPER = 'record/paper'
 BASE_DIR_NAME_TEST_STATS = 'record/stats'
+
+
+class ModeGetRecord(Enum):
+    ALL = auto()
+    LATEST = auto()
+    RECENT = auto()
+    SINCE = datetime.now().strftime('%Y-%m-%d')
 
 
 def _build_df_sentence(file_path):
@@ -36,18 +45,22 @@ def _build_df_record(file_path):
     return df
 
 
-def get_df_records(since='latest'):
+def get_df_records(mode):
     record_file_paths = glob(f'{BASE_DIR_NAME_TEST_PAPER}/*/*.json')
     df = pd.concat([_build_df_record(fp) for fp in record_file_paths])
     df.index.name = 'sentence_id'
+    df.sort_values('group', ascending=False)
     df = df.reset_index()
-    if since == 'all':
+    if mode == ModeGetRecord.ALL:
         return df
-    elif since == 'latest':
+    elif mode == ModeGetRecord.LATEST:
         latest_date = df['group'].max()
         return df[df['group'] == latest_date]
+    elif mode == ModeGetRecord.RECENT:
+        recent_num = 100
+        return df[:recent_num]
     else:
-        return df[df['group'] >= since]
+        return df[df['group'] >= ModeGetRecord.SINCE]
 
 
 def store_test_paper(file_name, paper):
@@ -63,7 +76,7 @@ def store_test_stat(file_name, df_stats):
 
 
 def main() -> None:
-    df = get_df_records('all')
+    df = get_df_records(ModeGetRecord.RECENT)
     print(df)
 
 

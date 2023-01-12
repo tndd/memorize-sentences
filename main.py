@@ -4,13 +4,14 @@ from enum import Enum, auto
 
 import pandas as pd
 
-from broker import (get_df_records, get_df_sentences, store_test_paper,
-                    store_test_stat)
+from broker import (ModeGetRecord, get_df_records, get_df_sentences,
+                    store_test_paper, store_test_stat)
 from stats import get_random_sentence_ids, get_sr_wrong_rate_by_sentence
 
 
 class TestMode(Enum):
     FULL = auto()
+    RECENT = auto()
     REVIEW = auto()
 
 
@@ -60,13 +61,18 @@ def test_sentences(sentences, n=None):
 def get_wrong_rate_by_sentences(mode, df_sentences):
     # select mode of test
     if mode == TestMode.FULL:
-        record_since = 'all'
+        mode_record = ModeGetRecord.ALL
         unknown_id_value = 0 # Unanswered sentence_id are treated as "WRONG".
-    if mode == TestMode.REVIEW:
-        record_since = 'latest'
+    elif mode == TestMode.RECENT:
+        mode_record = ModeGetRecord.RECENT
+        unknown_id_value = 0 # Unanswered sentence_id are treated as "WRONG".
+    elif mode == TestMode.REVIEW:
+        mode_record = ModeGetRecord.LATEST
         unknown_id_value = 1 # Unanswered sentence_id are treated as "CORRECT".
+    else:
+        raise
     # get data of records for narrow down to focus on failure sentence
-    df_records = get_df_records(since=record_since)
+    df_records = get_df_records(mode=mode_record)
     # get series of wrong rate by sentences
     return get_sr_wrong_rate_by_sentence(df_records, df_sentences.index, unknown_id_value)
 
@@ -81,7 +87,7 @@ def main() -> None:
     # Params
     # TODO support for optional args.
     mode = TestMode.FULL
-    n = 1
+    n = 5
 
     # get all data of senteneces for test
     df_sentences = get_df_sentences()
