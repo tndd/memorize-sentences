@@ -1,9 +1,17 @@
 import difflib
 import json
 import os
+import random
 from datetime import datetime
+from enum import Enum, auto
 
-from broker import get_df_sentences
+from broker import get_df_records, get_df_sentences
+from stats import get_random_sentence_ids, get_sr_wrong_rate_by_sentence
+
+
+class TestMode(Enum):
+    FULL = auto()
+    REVIEW = auto()
 
 
 def test_sentences(sentences, n=None):
@@ -54,8 +62,22 @@ def test_sentences(sentences, n=None):
 
 
 def main() -> None:
-    df = get_df_sentences()
-    test_sentences(df)
+    # Params
+    mode = TestMode.FULL
+    n = 2
+
+    df_sentences = get_df_sentences()
+    if mode == TestMode.FULL:
+        record_since = 'all'
+        unknown_id_value = 0 # Unanswered sentence_id are treated as "WRONG".
+    if mode == TestMode.REVIEW:
+        record_since = 'latest'
+        unknown_id_value = 1 # Unanswered sentence_id are treated as "CORRECT".
+    df_records = get_df_records(since=record_since)
+    wrong_rate_by_sentences = get_sr_wrong_rate_by_sentence(df_records, df_sentences.index, unknown_id_value)
+    ids_choiced = get_random_sentence_ids(wrong_rate_by_sentences, n)
+    df_sentences_for_test = df_sentences.loc[ids_choiced]
+    test_sentences(df_sentences_for_test)
 
 
 if __name__ == '__main__':
