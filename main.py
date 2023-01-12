@@ -87,7 +87,7 @@ def main() -> None:
     # Params
     # TODO support for optional args.
     mode = TestMode.FULL
-    n = 5
+    n = 8
 
     # get all data of senteneces for test
     df_sentences = get_df_sentences()
