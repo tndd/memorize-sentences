@@ -70,7 +70,7 @@ def store_test_paper(file_name, paper):
         json.dump(paper, f, indent=4)
 
 
-def store_test_stat(file_name, df_stats):
+def store_test_stats(file_name, df_stats):
     os.makedirs(BASE_DIR_NAME_TEST_STATS, exist_ok=True)
     df_stats.to_csv(f"{BASE_DIR_NAME_TEST_STATS}/{file_name}.tsv", sep='\t')
 

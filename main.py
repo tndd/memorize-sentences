@@ -5,7 +5,7 @@ from enum import Enum, auto
 import pandas as pd
 
 from broker import (ModeGetRecord, get_df_records, get_df_sentences,
-                    store_test_paper, store_test_stat)
+                    store_test_paper, store_test_stats)
 from stats import get_random_sentence_ids, get_sr_wrong_rate_by_sentence
 
 
@@ -104,7 +104,7 @@ def main() -> None:
     store_test_paper(file_name, test_paper)
     # store test stat
     df_test_stat_updated = get_df_test_stats(df_sentences)
-    store_test_stat(file_name, df_test_stat_updated)
+    store_test_stats(file_name, df_test_stat_updated)
 
 
 
