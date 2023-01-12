@@ -35,11 +35,16 @@ def get_random_sentence_ids(mode=GetSentencesMode.FULL, n=None):
     return random.choices(prob_selected.index,weights=prob_selected, k=n)
 
 
+def show_stats():
+    print('### REVIEW ###')
+    print(get_sr_probs_of_selected_ids(GetSentencesMode.REVIEW))
+    print('')
+    print('### FULL ###')
+    print(get_sr_probs_of_selected_ids(GetSentencesMode.FULL))
+
+
 def main() -> None:
-    ids = get_random_sentence_ids(mode=GetSentencesMode.FULL)
-    print(ids)
-    # ids = get_random_sentence_ids(mode=GetSentencesMode.REVIEW)
-    # print(ids)
+    show_stats()
 
 
 if __name__ == '__main__':
