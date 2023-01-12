@@ -1,7 +1,8 @@
 def get_sr_wrong_rate_by_sentence(df_records, sentence_ids, unknown_id_value):
+    min_prob = 0.1
     sr_mean = df_records.groupby('sentence_id').mean(numeric_only=True)['status']
     sr_mean_filled_un = sr_mean.reindex(sentence_ids, fill_value=unknown_id_value)
-    sr_mean_selected = sr_mean_filled_un.apply(lambda x: max(1 - x, 0.01))
+    sr_mean_selected = sr_mean_filled_un.apply(lambda x: max(1 - x, min_prob))
     return sr_mean_selected.sort_values(ascending=False)
 
 
