@@ -1,29 +1,9 @@
 import difflib
 import json
 import os
-import re
 from datetime import datetime
-from glob import glob
 
-import pandas as pd
-
-
-def build_df(file_path):
-    with open(file_path, 'r') as f:
-        d = json.load(f)
-    df = pd.DataFrame.from_dict(d, orient='index')
-    df.index.name = 'id'
-    df.insert(0, 'group', re.search(r"\/([a-z_]+)\.json", file_path).group(1))
-    return df
-
-
-def get_df_sentences(shuffle=True):
-    sentences_file_paths = glob('data/*.json')
-    dfs = [build_df(fp) for fp in sentences_file_paths]
-    if shuffle:
-        return pd.concat(dfs).sample(frac=1)
-    else:
-        return pd.concat(dfs)
+from broker import get_df_sentences
 
 
 def test_sentences(sentences, n=None):

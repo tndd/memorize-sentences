@@ -1,43 +1,43 @@
-import json
-import re
-from glob import glob
+import random
+from enum import Enum, auto
 
-import pandas as pd
-
-
-def build_df(file_path):
-    with open(file_path, 'r') as f:
-        d = json.load(f)
-    df = pd.DataFrame.from_dict(d, orient='index')
-    group_name = re.search(r"record/.*\/(.*)\.json", file_path).group(1)
-    df.insert(0, 'group', group_name)
-    return df
+from broker import get_df_records, get_df_sentences
 
 
-def get_df_record(since='latest'):
-    record_file_paths = glob('record/*/*.json')
-    df = pd.concat([build_df(fp) for fp in record_file_paths])
-    df.index.name = 'sentence_id'
-    df = df.reset_index()
-    if since == 'all':
-        return df
-    elif since == 'latest':
-        latest_date = df['group'].max()
-        return df[df['group'] == latest_date]
-    else:
-        return df[df['group'] >= since]
-
-
-def get_sr_mean_of_selected_by_sentence(df):
-    sr_mean = df.groupby('sentence_id').mean(numeric_only=True)['status'].sort_values()
+def get_sr_mean_of_selected_by_sentence(df, unknown_id_value):
+    sr_mean = df.groupby('sentence_id').mean(numeric_only=True)['status']
+    idxs = get_df_sentences().index
+    # Unanswered sentence_id shall be assumed to have been answered wrong.
+    sr_mean = sr_mean.reindex(idxs, fill_value=unknown_id_value)
     sr_mean_selected = sr_mean.apply(lambda x: max(1 - x, 0.01))
-    return sr_mean_selected
+    return sr_mean_selected.sort_values(ascending=False)
+
+
+class GetSentencesMode(Enum):
+    FULL = auto()
+    REVIEW = auto()
+
+
+def get_random_sentence_ids(mode=GetSentencesMode.FULL, n=None):
+    if mode == GetSentencesMode.FULL:
+        record_since = 'all'
+        unknown_id_value = 0 # Unanswered sentence_id are treated as "WRONG".
+    if mode == GetSentencesMode.REVIEW:
+        record_since = 'latest'
+        unknown_id_value = 1 # Unanswered sentence_id are treated as "CORRECT".
+    df = get_df_records(since=record_since)
+    sr = get_sr_mean_of_selected_by_sentence(df, unknown_id_value)
+    prob = sr / sr.sum()
+    print(prob)
+    n = len(sr) if n is None else n
+    return random.choices(sr.index,weights=prob, k=n)
 
 
 def main() -> None:
-    df = get_df_record('all')
-    sr = get_sr_mean_of_selected_by_sentence(df)
-    
+    ids = get_random_sentence_ids(mode=GetSentencesMode.FULL)
+    print(ids)
+    ids = get_random_sentence_ids(mode=GetSentencesMode.REVIEW)
+    print(ids)
 
 
 if __name__ == '__main__':
