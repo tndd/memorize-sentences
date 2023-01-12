@@ -6,9 +6,9 @@ from broker import get_df_records, get_df_sentences
 
 def get_sr_mean_of_selected_by_sentence(df, unknown_id_value):
     sr_mean = df.groupby('sentence_id').mean(numeric_only=True)['status']
-    idxs = get_df_sentences().index
+    full_sentence_ids = get_df_sentences().index
     # Unanswered sentence_id shall be assumed to have been answered wrong.
-    sr_mean = sr_mean.reindex(idxs, fill_value=unknown_id_value)
+    sr_mean = sr_mean.reindex(full_sentence_ids, fill_value=unknown_id_value)
     sr_mean_selected = sr_mean.apply(lambda x: max(1 - x, 0.01))
     return sr_mean_selected.sort_values(ascending=False)
 
