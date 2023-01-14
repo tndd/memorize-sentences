@@ -73,7 +73,7 @@ def store_test_paper(file_name, paper):
 def store_test_stats(file_name, df_stats):
     dir_name = f"{BASE_DIR_NAME_TEST_STATS}/{file_name.split('T')[0]}"
     os.makedirs(dir_name, exist_ok=True)
-    df_stats.to_csv(f"{dir_name}/{file_name}.tsv", sep='\t')
+    df_stats.to_csv(f"{dir_name}/{file_name}.tsv", sep='\t', float_format='%.2f')
 
 
 def main() -> None:
